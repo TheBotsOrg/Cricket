@@ -8,9 +8,27 @@ clicked = False
 balls = 12
 score = []
 offscreen = l.choose(5)
-onscreen = ["*" for x in range(len(offscreen))]
+onscreen = [0 for x in range(len(offscreen))]
 number_color = rl.WHITE
 background_color = rl.BLACK
+
+def getScore(score,balls):
+    runs = 0
+    wickets = 0
+    for x in range(len(score)):
+        match score[x]:
+            case "wicket":
+                wickets+=1
+            case "no ball":
+                r = l.choose(1,nob=True)[0]
+                # score[x] += ("("+str(r)+")")
+                runs+=r
+            case "wide":
+                runs+=1
+            case default:
+                runs+=score[x]
+    return (runs , wickets)
+
 
 while not rl.window_should_close():
     rl.set_target_fps(60)
@@ -24,12 +42,13 @@ while not rl.window_should_close():
                                                                     font_size,
                                                                     font_size)):
                 if rl.is_mouse_button_pressed(rl.MOUSE_LEFT_BUTTON):
-                    # onscreen[i] = offscreen[i]
+                    onscreen[i] = offscreen[i]
                     clicked = True
+                    print(offscreen[i])
                     score.append(onscreen[i])
                     balls-=1
                     offscreen = l.choose(len(offscreen))
-                    # onscreen = ["*" for x in range(len(offscreen))]
+                    onscreen = [0 for x in range(len(offscreen))]
                     clicked = False
 
     rl.begin_drawing()
@@ -41,8 +60,17 @@ while not rl.window_should_close():
                      int(number_pos.y - font_size / 2),
                      font_size,
                      number_color)
-    rl.draw_text("SCORE : "+str(sum(score))+":"+str(score), 0,
+    runs , wickets = getScore(score , balls)
+    rl.draw_text("SCORE : "+str(runs)+"/"+str(wickets)+":", 0,
                  0,
+                 font_size // 4,
+                 number_color)
+    rl.draw_text(str(score), 560,
+                 0,
+                 font_size // 4,
+                 number_color)
+    rl.draw_text(str((12-balls)//6)+"."+str((12-balls)%6), 0,
+                 40,
                  font_size // 4,
                  number_color)
 
